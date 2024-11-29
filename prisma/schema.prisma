@@ -1,0 +1,63 @@
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Define the User model with roles for PH Operator and WH Operator
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  email     String   @unique
+  password  String
+  role      Role @default(WH_OPERATOR)
+  orderspkId Order_spk[]
+  createdAt DateTime @default(now())
+  update_at DateTime @updatedAt
+  
+}
+
+// Define enum for Role
+enum Role {
+  PH_OPERATOR
+  WH_OPERATOR
+}
+
+
+// Define Material managed by WH Operators
+model Material {
+  id            Int        @id @default(autoincrement())
+  name          String
+  description   String
+  stock         Int
+  orderspkId Order_spk[]
+  created_at    DateTime @default(now())
+  update_at     DateTime @updatedAt
+}
+
+// Define Order (SPK) managed by both PH and WH Operators
+model Order_spk {
+  id             Int        @id @default(autoincrement())
+  userId         Int 
+  materialId     Int 
+  orderQty       Int
+  status         OrderStatus
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  user           User       @relation(fields: [userId], references: [id])
+  material       Material   @relation(fields: [materialId], references: [id])
+}
+
+enum OrderStatus {
+  PENDING
+  ON_PROCESS
+  DONE
+}
