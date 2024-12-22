@@ -25,10 +25,15 @@ async function findOrder() {
                 material:{
                     select:{
                         name: true
-                    }
-                }
-            }
-        })
+                    },
+                },
+                user:{
+                    select:{
+                        username: true,
+                    },
+                },
+            },
+        });
         return order
     } catch (error) {
         throw new Error("failed to fetch order");    
